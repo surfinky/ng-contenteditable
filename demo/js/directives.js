@@ -56,7 +56,7 @@ EditorDirectives.directive('editable', function () { // Add additional behavior 
                         trigger: 'manual',
                         container: 'body' // This is important or else we pollute the editable region content!
                     }).popover('show');
-                    setTimeout(function () { $toolbar.popover('destroy'); }, 5000);
+                    setTimeout(function () { $toolbar.popover('hide'); }, 5000);
                 }
 
             });
@@ -215,7 +215,7 @@ EditorDirectives.directive('img', ['editable.dragHelperService', function (drag)
             element.bind('mousedown mouseleave dragstart', function (event) {
                 if (scope.$isNgContentEditable) {
                     element.attr("contenteditable", true).addClass('editable-allow-select'); // Enables image resizing in Mozilla (note may not always want contenteditable true behavior on this element).
-                    $(element).popover('hide').popover('destroy');
+                    $(element).popover('hide');
                 }
             });
         }
@@ -265,16 +265,18 @@ EditorDirectives.directive('myCustomDirective', ['editable.dragHelperService', f
                     element.html('<i class="fa fa-check"></i> Clicked! Now, drag me... :-)');
                 }
 
-                $(element).popover({ // Do custom popup behavior...
-                    animation: true,
-                    placement: 'left',
-                    title: '<i class="fa fa-info"></i> &nbsp; <b>Custom directive!</b>',
-                    content: 'This is an example of a <b>custom</b> directive instance. Drag me to an editable region to see how my behavior changes dynamically.',
-                    html: true,
-                    trigger: 'manual',
-                    delay: { show: 100, hide: 1 },
-                    container: 'body' // This is VERY important or else we pollute the editable region content!
-                }).popover('show');
+                if (!scope.$isNgContentEditable) { // Prevent additional popover flicker in case of mouseover within contenteditable.
+                    $(element).popover({ // Do custom popup behavior...
+                        animation: true,
+                        placement: 'left',
+                        title: '<i class="fa fa-info"></i> &nbsp; <b>Custom directive!</b>',
+                        content: 'This is an example of a <b>custom</b> directive instance. Drag me to an editable region to see how my behavior changes dynamically.',
+                        html: true,
+                        trigger: 'manual',
+                        delay: { show: 100, hide: 1 },
+                        container: 'body' // This is VERY important or else we pollute the editable region content!
+                    }).popover('show');
+                }
 
                 return false;
             });
@@ -294,8 +296,8 @@ EditorDirectives.directive('myCustomDirective', ['editable.dragHelperService', f
                 }
             });
 
-            element.bind('mouseup mouseleave dragstart', function (event) {
-                $(element).popover('hide').popover('destroy');
+            element.bind('mouseleave dragstart', function (event) {
+                $(element).popover('hide');
             });
         }
     };
@@ -382,7 +384,7 @@ EditorDirectives.directive('a', ['editable.configService', 'editable.dragHelperS
             });
 
             element.bind('mouseup mouseleave dragstart', function (event) {
-                $(element).popover('hide').popover('destroy');
+                $(element).popover('hide');
             });
 
             element.bind('click', function (event) {

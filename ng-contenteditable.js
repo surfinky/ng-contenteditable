@@ -183,7 +183,6 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                     drag.setElement(event.target);
                 })
                 .bind('dragover', function (event) {
-                    element[0].focus();
                     return true;
                 })
                 .bind('drop', function (event) {
@@ -422,7 +421,7 @@ ngContentEditable.service('editable.utilityService', ['editable.configService', 
                 var obj = new window.URL(url);
                 if (obj && obj.href) return obj.href;
             } catch (error) {
-                console.error(error);
+                console.warn(error);
             }
             return null;
         },
