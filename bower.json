@@ -4,6 +4,7 @@
         "ng-contenteditable.js",
         "ng-contenteditable.css"
     ],
+    version: "0.9.10",
     "homepage": "https://github.com/cathalsurfs/ng-contenteditable",
     "authors": [
         "github.com/cathalsurfs",
