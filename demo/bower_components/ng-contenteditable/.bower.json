@@ -4,7 +4,7 @@
     "ng-contenteditable.js",
     "ng-contenteditable.css"
   ],
-  "version": "0.9.11",
+  "version": "0.9.12",
   "homepage": "https://github.com/cathalsurfs/ng-contenteditable",
   "authors": [
     "github.com/cathalsurfs",
@@ -30,11 +30,11 @@
     ".DS_Store",
     "index.html"
   ],
-  "_release": "0.9.11",
+  "_release": "0.9.12",
   "_resolution": {
     "type": "version",
-    "tag": "v0.9.11",
-    "commit": "645d504af09c9d5ee9e6060aff0b33db1bdea57c"
+    "tag": "v0.9.12",
+    "commit": "6c495a5823caadaddbc286392fe2dbbd0560e08e"
   },
   "_source": "https://github.com/cathalsurfs/ng-contenteditable.git",
   "_target": "^0.9.10",
