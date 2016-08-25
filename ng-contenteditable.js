@@ -8,7 +8,7 @@ var ngContentEditable = angular.module('ngContentEditable', []);
 
 ngContentEditable.service('editable.configService', function () {
     return {
-        VERSION: '0.9.10',
+        VERSION: '0.9.11',
         DEBUG_MODE: false, // NOTE: Set false for production.
         DRAG_COMPONENT_CLASS: 'editable-component', // NOTE: This class name must be assigned to any directives working within editable regions.
         DISABLE_RANGE_OVER_EDITABLE_COMPONENT: false, // TODO: Set true for production.
@@ -53,7 +53,6 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
             var _stripNodes = function (selector) {
                 var nodes = element[0].querySelectorAll(selector);
                 for (var i=0; i<nodes.length; i++) { // Unfortunate yet robust way to iterate over NodeList non-array.
-                    console.log('remove --->', nodes[i]);
                     angular.element(nodes[i]).remove();
                 }
             };
@@ -143,7 +142,6 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
 
                 try { // When we have a drop event. // TODO: Refactor for 'paste' event handler.
                     var caret = range.captureRange(event);
-                    console.log('caret', caret, range.getCachedRange());
                     if (_dragEvent) range.deleteContents();
                     range.setCachedRange(caret);
                     range.insertNode( angular.element( data ) );
@@ -170,7 +168,7 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                     element.attr('contenteditable', 'true'); // Force editable.
                 })
                 .bind('blur', function (event) {
-                    _updateFn({ updateScope: true, updateStatus: true });
+                    _updateScope({ updateScope: true, updateStatus: true });
                     range.clearSelection();
                 })
                 .bind('dragstart', function (event) {
@@ -224,7 +222,6 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                         utils.triggerErrorHandler(result, scope);
                         return false;
                     });*/
-                    console.log('PASTE', event)
                     _updateScope({ compile: true, wait: 1000 }); // Wait a second...
                     return true;
                 })
@@ -242,7 +239,7 @@ ngContentEditable.service('editable.dragHelperService', ['editable.utilityServic
         _dragElement = null;
 
     $document.on('dragstart', function (event) {
-        console.log('document dragstart', event);
+        // TODO
     });
 
     return {

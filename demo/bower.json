@@ -1,0 +1,23 @@
+{
+  "name": "ngContentEditable Demo",
+  "homepage": "https://github.com/cathalsurfs/ng-contenteditable",
+  "authors": [
+    "github.com/cathalsurfs"
+  ],
+  "description": "A demo for ngContentEditable",
+  "main": "example.html",
+  "license": "MIT",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "jquery-ui": "^1.12.0",
+    "ng-contenteditable": "ngcontenteditable#^0.9.10",
+    "angular": "angularjs#^1.5.8"
+  }
+}
