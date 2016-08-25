@@ -8,7 +8,7 @@ var ngContentEditable = angular.module('ngContentEditable', []);
 
 ngContentEditable.service('editable.configService', function () {
     return {
-        VERSION: '0.9.11',
+        VERSION: '0.9.12',
         DEBUG_MODE: false, // NOTE: Set false for production.
         DRAG_COMPONENT_CLASS: 'editable-component', // NOTE: This class name must be assigned to any directives working within editable regions.
         DISABLE_RANGE_OVER_EDITABLE_COMPONENT: false, // TODO: Set true for production.
