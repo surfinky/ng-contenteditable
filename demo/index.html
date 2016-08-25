@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>ngContentEditable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="description" content="Editable for AngularJS">
+  <meta name="author" content="inchsurf.com">
+
+  <link href="css/demo.css" rel="stylesheet" media="screen" id="demo-css-file" />
+  <link href="../ng-contenteditable.css" rel="stylesheet" />
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+  <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.2.1/angular.min.js"></script>
+
+  <style>
+
+  ul.features.list-inline > li {
+    vertical-align: top;
+  }
+
+  .btn-toolbar .btn {
+    height: 30px;
+    padding: 2px 12px;
+  }
+
+  div.animate {
+    -webkit-transition: all 1s ease-in-out !important;
+    -moz-transition: all 1s ease-in-out !important;
+    -o-transition: all 1s ease-in-out !important;
+    -ms-transition: all 1s ease-in-out !important;
+    transition: all 1s ease-in-out !important;
+  }
+
+  </style>
+
+</head>
+
+<body id="top" data-spy="scroll" data-target=".navbar" data-offset="50" data-ng-app="EditorApp">
+
+<div data-ng-controller="EditorCtrl">
+
+  <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar-container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="#"><img style="margin: 0; float: left;" src="img/logo_icon.png" /> &nbsp; ngContentEditable</a>
+      </div>
+      <div id="nav-collapse" class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li class="active"><a class="scroll brand-1" href="#home">Home</a></li>
+          <li><a href="#features" class="scroll brand-4">Features</a></li>
+          <li><a href="#about" class="scroll brand-3">About</a></li>
+          <li><a href="#usage" class="scroll fadeto brand-4">Usage</a></li>
+          <li><a href="#source" class="scroll brand-2">Source</a></li>
+          <li><a href="example.html" onclick="window.location='example.html';">Demo</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <nav class="navbar navbar-default navbar-fixed-top hide animate" role="navigation" id="editable-toolbar">
+    <div class="navbar-container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="#"><img style="margin: 0; float: left;" src="img/logo_icon.png" /> &nbsp; ngContentEditable - Edit Mode</a>
+      </div>
+      <div id="nav-collapse" class="collapse navbar-collapse navbar-ex1-collapse">
+        <div class="nav navbar-nav navbar-right">
+
+<!-- BEGIN: Custom command toolbar... -->
+
+          <div class="btn-toolbar" role="toolbar" style="height: 30px; margin: 4px;">
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" href="" onclick="return false;" ng-click="saveAll()"><i class="fa fa-floppy-o"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="bold" data-active="active" href="#"><i class="fa fa-bold"></i></a>
+              <a class="btn btn-default editable-control" data-command="italic" data-active="active" href="#"><i class="fa fa-italic"></i></a>
+              <a class="btn btn-default editable-control" data-command="underline" data-active="active" href="#"><i class="fa fa-underline"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default" href="#"><i class="fa fa-align-left"></i></a>
+              <a class="btn btn-default" href="#"><i class="fa fa-align-center"></i></a>
+              <a class="btn btn-default" href="#"><i class="fa fa-align-right"></i></a>
+              <a class="btn btn-default" href="#"><i class="fa fa-align-justify"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="insertorderedlist" data-active="active" href="#"><i class="fa fa-list-ol"></i></a>
+              <a class="btn btn-default editable-control" data-command="insertunorderedlist" data-active="active" href="#"><i class="fa fa-list-ul"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default" href="#"><i class="fa fa-chevron-up"></i></a>
+            </div>
+          </div>
+
+<!-- END -->
+
+        </div>
+      </div>
+    </div><!-- /.navbar-container -->
+  </nav>
+
+  <div id="home" class="page color-1">
+    <div class="inner-page">
+      <img src="img/logo_white.png" class="centered" /><br />
+      <h3 class="page-headline medium">Make any region on your page <span class="page-headline editable" data-ng-model="index.editable"> editable </span>...</h3>
+    </div>
+    <div class="row inner-page">
+      <div class="col-md-8 col-md-push-4 lazy-container">
+        <img class="lazy" src="img/pixel.png" data-original="img/home.png" />
+      </div>
+      <div class="col-md-4 col-md-pull-8">
+        <ul class="big-list">
+
+          <li><i class="fa fa-gears"></i> Built for AngularJS</li>
+          <li><i class="fa fa-code-fork"></i> Easy integration</li>
+          <li><i class="fa fa-puzzle-piece"></i> Extend with directives</li>
+
+        </ul>
+        <br />
+        <br />
+        <a href="example.html" class="scroll btn btn-primary btn-centered"><i class="fa fa-bolt"></i> &nbsp; View Demo!</a>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="sign-up color-2 visible-lg">
+    <div class="row inner-page">
+      <div class="col-md-12">
+        <h4 class="pull-left"><strong>Play with this page.</strong> Click any <span style="padding-left: 4px; padding-right: 4px;" class="editable" data-ng-model="index.regions">editable regions</span> below and go wild!</h4>
+        <a href="#features" class="scroll btn btn-primary pull-right" title="Check out more freatures!"><i class="fa fa-caret-down"></i> Scroll down</a>
+      </div>
+    </div>
+  </div>
+
+  <div id="features" class="page color-4">
+    <div class="inner-page">
+      <h2 class="page-headline editable" data-ng-model="index.heading">Seamless in-page editing with ngContentEditable...</h2>
+    </div>
+
+    <div class="inner-page row">
+      <ul class="features list-inline">
+        <li>
+          <h3><i class="fa fa-check"></i> Simple</h3>
+          <p class="editable" data-ng-model="index.simple">Why can't the user just edit stuff, right there, on the page? <br /><br />Why does the developer have to work with intrusive components which interfere with page style, layout or functionality? <br /><br /><strong>The answer to both these questions is ngContentEditable!</strong></p>
+        </li>
+        <li>
+          <h3><i class="fa fa-heart"></i> Fun</h3>
+          <p class="editable" data-ng-model="index.fun">The idea was to create an extremely unobtrusive directive for AngularJS developers which makes any element within your application editable. <br /><br />This type of thing has been done before, to varying degrees, but none specifically designed to stay the hell out of your way while at the same time providing a stupidly simple interface for any user.</p>
+        </li>
+        <li>
+          <h3><i class="fa fa-magic"></i> Seamless</h3>
+          <p class="editable" data-ng-model="index.seamless">All you have to do is include the ngContentEditable directive anywhere in your view. Hook up your data model (required) and away you go!. <br /><br />You can register your own directives and implement specific behavior when they are contained within an editable region.</p>
+        </li>
+      </ul>
+    </div>
+
+    <hr>
+
+    <div class="row inner-page">
+      <div class="col-md-6 editable" data-ng-model="index.highlights">
+        <ul class="big-list">
+          <li><i class="fa fa-flash"></i> Simply drop into your page</li>
+          <li><i class="fa fa-puzzle-piece"></i> Implement your own UI</li>
+          <li><i class="fa fa-expand"></i> Supports native drag and drop</li>
+          <li><i class="fa fa-html5"></i> Most modern browsers supported</li>
+        </ul>
+        <br />
+        <a href="#about" class="scroll btn btn-primary btn-centered"><i class="fa fa-caret-down"></i> More details</a>
+        <br />
+      </div>
+      <div class="col-md-6 editable" data-ng-model="index.features">
+        <h3 style="margin-top: 5px;"><i class="fa fa-dropbox"></i> What's in the box?</h3>
+        <p class="lead">Here is the feature set...</p>
+        <ul class="list-wide">
+          <li><i class="fa fa-arrow-right"></i> Integrates directly with your page layout.</li>
+          <li><i class="fa fa-arrow-right"></i> Implement your own UI for total customisation.</li>
+          <li><i class="fa fa-arrow-right"></i> Supports native drag and drop.</li>
+          <li><i class="fa fa-arrow-right"></i> Create your own plugins as native AngularJS directives.</li>
+          <li><i class="fa fa-arrow-right"></i> Preserve your layout with editable regions.</li>
+        </ul>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="about" class="page color-3">
+    <div class="inner-page">
+      <h2 class="page-headline">About ngContentEditable</h2>
+    </div>
+
+    <div class="row inner-page">
+      <div class="col-md-6 lazy-container">
+        <img class="figurette lazy" src="img/pixel.png" data-original="img/devices.png" />
+      </div>
+      <div class="col-md-6">
+        <h3>Browser support</h3>
+        <p class="lead">This directive will work in most <strong>modern</strong> browsers that support contenteditable attribute for elements and native drag and drop.</p>
+        <p>As usual, browsers implement these features differently and in many cases, deviate wildly in terms of API for range selection and what not. So, beware...</p>
+        <p>The idea for this directive is proof-of-concept, so hang tough for future revisions with improved cross browser feature compatability.</p>
+        <p>Use of the <a href="http://getfirefox.com" title="Musky sly old foxy stoat! Minky musky sly old stoaty, stoaty stoat! - Rick Mayall, Bottom" target="_blank">Foxy browser</a> is strongly recommended. Chrome is good (enough). Don't try this in IE8, kids. <strong>;-)</strong></p>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="usage" class="page color-4">
+    <div class="inner-page">
+      <h2 class="page-headline">Howto...</h2>
+    </div>
+
+    <div class="row inner-page">
+
+      <div class="col-md-6">
+        <h3>Instructions</h3>
+        <p class="lead">It's easy... Just load the module into your application. Then hook up your ng-model and "editable" class name for elements within your view.</p>
+        <h4>Now, for the slightly more involving part...</h4>
+        <p>You'll need to implement your own user interface. For this, it's recommended to use the readily available directive for converting any element within your view to a ngContentEditable command. Just add the <strong>"editable-control"</strong> class name to these elements. Alternatively, of course, you could totally roll your own.</p>
+        <p>Finally, you may want to support native drag-and-drop on your editable regions. Just add the <strong>"editable-drop"</strong> class name to those elements.</p>
+        <p>You can do lots of other imaginative stuff, but for now, just check out the example application to see a possible usage scenario and how it's implemented.</p>
+      </div>
+
+      <div class="col-md-6 lazy-container">
+        <img class="figurette lazy" src="img/pixel.png" data-original="img/desktop.png" />
+        <br /><br />
+        <a href="example.html" onclick="window.location='example.html';" class="scroll btn btn-primary btn-centered"><i class="fa fa-chevron-circle-right"></i> &nbsp; <strong style="font-size: 1.2em !important;">See code example...</strong></a>
+      </div>
+
+    </div>
+  </div>
+
+  <div id="source" class="page color-2">
+    <div class="clients color-1">
+      <div class="inner-page">
+        <h2 class="page-headline"><i class="fa fa-code"></i> Get the source... <i class="fa fa-code"></i></h2>
+      </div>
+      <div class="inner-page row">
+        <ul class="clients list-inline">
+          <li><a href="https://github.com/cathalsurfs/ng-contenteditable"><i class="fa fa-github"></i> GitHub</a></li>
+          <li><a href="https://github.com/cathalsurfs/ng-contenteditable/archive/master.zip"><i class="fa fa-download"></i> Download</a></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <footer class="page color-5">
+    <div class="inner-page row">
+      <div class="col-md-6 copyright">
+        &copy; 2014 <a href="mailto:cathal@inchsurf.com">Cathal McCarthy</a>
+      </div>
+      <div class="col-md-6 text-right copyright">
+        <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank">Free, as in Freedom</a> | <a href="#top" title="Got to top" class="scroll">To top <i class="fa fa-caret-up"></i></a>
+      </div>
+    </div>
+  </footer>
+
+</div><!--/ EditorCtrl /-->
+
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+  <script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+  <script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+
+  <script src="../ng-contenteditable.js"></script>
+  <script src="./js/directives.js"></script>
+  <script src="./js/app.js"></script>
+  <script src="./js/main.js"></script>
+
+<script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-47300033-1', 'inchsurf.com');
+ga('send', 'pageview');
+</script>
+
+</body>
+</html>

@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="en" data-ng-app="EditorApp">
+<head>
+  <title>ngContentEditable</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
+  <meta name="description" content="Editable for AngularJS">
+  <meta name="author" content="inchsurf.com">
+
+  <link rel="stylesheet" href="css/demo.css" media="screen" id="demo-css-file" />
+  <link rel="stylesheet" href="../ng-contenteditable.css" />
+  <link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery-ui.min.css">
+
+  <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+    <![endif]-->
+
+  <meta http-equiv='X-UA-Compatible' content='IE=edge' />
+
+  <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/angularjs/1.5.5/angular.min.js"></script>
+
+  <style>
+
+
+  .editable img { /* NOTE: Merge into master CSS for FF issues with unsized image node insertion. */
+      min-width: 200px;
+      min-height: 200px;
+  }
+
+  .editable-custom-youtube {
+      display: inline-block;
+      position: relative;
+      width: 560px;
+      height: 315px;
+  }
+
+  .editable-custom-youtube .mask {
+      display: block;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: red;
+      z-index: 99999;
+      opacity: .5;
+  }
+
+  div.ui-wrapper { /* Set position so that resizable plugin displays correctly. */
+      position: relative !important;
+  }
+
+  ul.features.list-inline > li {
+      vertical-align: top;
+  }
+
+  .btn-toolbar .btn {
+      height: 30px;
+      padding: 2px 12px;
+  }
+
+  img { /* Hack for positioning within contenteditable area. */
+      display: inline-block;
+      margin: 5px;
+  }
+
+  </style>
+
+</head>
+
+<body id="top" data-spy="scroll" data-target=".navbar" data-col-md-offset-="50" data-ng-controller="EditorCtrl">
+
+    <nav class="navbar navbar-default navbar-fixed-top" role="navigation">
+    <div class="navbar-container">
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="#"><img style="margin: 0; float: left;" src="img/logo_icon.png" /> &nbsp; ngContentEditable</a>
+      </div>
+      <div id="nav-collapse" class="collapse navbar-collapse navbar-ex1-collapse">
+        <ul class="nav navbar-nav navbar-right">
+          <li><a class="scroll brand-1" href="index.html#home">Home</a></li>
+          <li><a href="index.html#features" class="scroll brand-4">Features</a></li>
+          <li><a href="index.html#about" class="scroll brand-3">About</a></li>
+          <li><a href="index.html#usage" class="scroll fadeto brand-4">Usage</a></li>
+          <li><a href="index.html#source" class="scroll brand-2">Source</a></li>
+          <li class="active"><a href="example.html" onclick="window.location='example.html';">Demo</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <nav class="navbar navbar-default navbar-fixed-top hide" role="navigation" id="editable-toolbar">
+    <div class="navbar-container">
+
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-ex1-collapse">
+          <span class="sr-only">Toggle navigation</span>
+          <i class="fa fa-bars"></i>
+        </button>
+        <a class="navbar-brand" href="#"><img style="margin: 0; float: left;" src="img/logo_icon.png" /> &nbsp; ngContentEditable - Edit Mode</a>
+      </div>
+
+      <div id="nav-collapse" class="collapse navbar-collapse navbar-ex1-collapse">
+        <div class="nav navbar-nav navbar-right">
+
+          <div class="btn-toolbar" role="toolbar" style="height: 30px; margin: 4px;">
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" href="#" onclick="return false;" ng-click="saveAll()"><i class="fa fa-floppy-o"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="bold" data-active="active" href="#"><i class="fa fa-bold"></i></a>
+              <a class="btn btn-default editable-control" data-command="italic" data-active="active" href="#"><i class="fa fa-italic"></i></a>
+              <a class="btn btn-default editable-control" data-command="underline" data-active="active" href="#"><i class="fa fa-underline"></i></a>
+              <a class="btn btn-default editable-control" data-command="strikethrough" data-active="active" href="#"><i class="fa fa-strikethrough"></i></a>
+              <a class="btn btn-default editable-control editable-control-test" data-command="fontsize" data-active="active" href="#"><i class="fa fa-font"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="justifyleft" data-active="active" href="#"><i class="fa fa-align-left"></i></a>
+              <a class="btn btn-default editable-control" data-command="justifycenter" data-active="active" href="#"><i class="fa fa-align-center"></i></a>
+              <a class="btn btn-default editable-control" data-command="justifyright" data-active="active" href="#"><i class="fa fa-align-right"></i></a>
+              <a class="btn btn-default editable-control" data-command="justifyfull" data-active="active" href="#"><i class="fa fa-align-justify"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="insertorderedlist" data-active="active" href="#"><i class="fa fa-list-ol"></i></a>
+              <a class="btn btn-default editable-control" data-command="insertunorderedlist" data-active="active" href="#"><i class="fa fa-list-ul"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" data-command="undo" data-active="active" href="#"><i class="fa fa-undo"></i></a>
+              <a class="btn btn-default editable-control" data-command="redo" data-active="active" href="#"><i class="fa fa-repeat"></i></a>
+            </div>
+            <div class="btn-group">
+              <a class="btn btn-default editable-control" href="#" onclick="return false;" ng-click="hideToolbar()"><i class="fa fa-chevron-up"></i></a>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div><!-- /.navbar-container -->
+  </nav>
+
+  <!--  Page -->
+  <div id="sample-page" class="page color-4">
+
+    <div class="inner-page">
+      <h2 class="page-headline">Example using ngContentEditable</h2>
+    </div>
+    <div class="row inner-page">
+      <div class="col-md-7 lazy-container btn-container">
+        <img alt="an image" data-original="img/desktop.png" src="img/desktop.png" class="figurette lazy" style="display: block;" />
+      </div>
+
+      <div class="col-md-5">
+        <h3><i class="fa fa-magic"></i> This has editable regions!</h3>
+        <h4>You can go ahead and modify any regions on this page where editing is allowed.</h4>
+        <p>You can modify text in these regions, or drag and drop assets from elsewhere on the page (where allowed). These assets might be images, or as you'll see, custom directives which will behave differently when placed within editable regions - just with a few lines of code.</p>
+        <p>Support for dragging files from your local system is allowed. You can even save your changes, in this example, with a little help from LocalStorage.</p>
+        <p>Follow the steps outlined below to build a simple application with editable page content. We'll build a page with Bootstrap for style and probably throw in a bit of jQuery just to cut corners for demonstration purposes.</p>
+        <br />
+        <a href="#play" class="scroll btn btn-primary btn-centered"> <i class="fa fa-github"></i> Continue...</a>
+      </div>
+    </div>
+
+    <hr />
+
+    <div id="play" class="row inner-page">
+
+      <div ng-repeat="editable in content">
+
+        <div class="col-md-offset-1 col-md-10 editable" style="margin-bottom: 30px;" data-ng-model="editable.content">
+            <!--dynamic content-->
+        </div>
+
+      </div><!--ng-repeat-->
+
+    </div>
+
+    <div id="play" class="row inner-page">
+
+      <p><a href="#" class="btn btn-primary btn-centered" ng-click="addEditableItem()" onclick="return false;"><i class="fa fa-plus-circle"></i> &nbsp; Click to add another editable!</a></p>
+
+    </div>
+
+    <hr />
+
+    <div class="row inner-page">
+
+      <div class="col-md-offset-2 col-md-4">
+        <p><a href="#" data-my-custom-directive class="editable-component btn btn-default" contenteditable="false"><i class="fa fa-flag-o"></i> I'm a directive. Click me!</a></p>
+        <p><a href="#"><b>I'm just a plain old link... Drag me!</b></a></p>
+        <p><a href="#" class="editable-component"><b>I'm a link but also a component... Drag me!</b></a></p>
+        <p>You can highlight and drag or copy this bit of text, or drag and drop the image below...</p>
+      </div>
+
+      <div class="col-md-offset-1 col-md-3">
+        <h5 style="margin-top: 0;">Or try dragging and dropping this image...</h5>
+        <p><img class="editable-component" src="img/finians.png" title="finians.png" style="display: inline-block;"></p>
+      </div>
+
+    </div>
+
+    <hr>
+
+    <div class="row inner-page" style="margin-bottom: 100px;">
+
+      <div class="col-md-offset-1 col-md-10">
+        <!-- Accordions -->
+        <div class="panel-group" id="accordion">
+
+          <div class="panel panel-primary">
+            <a class="accordion-toggle" data-toggle="collapse" data-parent="#accordion2" href="#collapseOne">
+              <div class="panel-heading">
+                <b>Usage instructions</b> <i class="fa fa-minus"></i>
+              </div>
+            </a>
+            <div id="collapseOne" class="accordion-body collapse in">
+              <div class="panel-body">
+                <h4>Coming soon...</h4>
+                <p>For now, just check out the source for this demo application on <a href="https://github.com/cathalsurfs/ng-contenteditable">GitHub</a>.</p>
+              </div>
+            </div>
+          </div>
+
+        </div> <!-- /Accordion -->
+      </div>
+
+    </div>  <!-- /row -->
+
+  </div>
+
+  <footer class="page color-5">
+    <div class="inner-page row">
+      <div class="col-md-6 copyright">
+        &copy; 2014 <a href="mailto:cathal@inchsurf.com">Cathal McCarthy</a>
+      </div>
+      <div class="col-md-6 text-right copyright">
+        <a href="http://en.wikipedia.org/wiki/GNU_General_Public_License" target="_blank">Free, as in Freedom</a> | <a href="#top" title="Got to top" class="scroll">To top <i class="fa fa-caret-up"></i></a>
+      </div>
+    </div>
+  </footer>
+
+
+  <!-- Bootstrap modal -->
+  <div class="modal fade" id="example-app-modal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+          <h4 class="modal-title" id="example-app-modal-title">Modal title</h4>
+        </div>
+        <div id="example-app-modal-body" class="modal-body">
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">OK</button>
+        </div>
+      </div><!-- /.modal-content -->
+    </div><!-- /.modal-dialog -->
+  </div><!-- /.modal -->
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script src="http://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jquery.lazyload/1.9.1/jquery.lazyload.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js"></script>
+
+<script src="../ng-contenteditable.js"></script>
+<script src="./js/directives.js"></script>
+<script src="./js/app.js"></script>
+<script src="./js/main.js"></script>
+
+<!--TODO script>
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'UA-47300033-1', 'inchsurf.com');
+ga('send', 'pageview');
+</script-->
+
+</body>
+
+</html>

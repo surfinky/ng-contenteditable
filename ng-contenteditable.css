@@ -1,0 +1,75 @@
+* {
+   -moz-user-select: none;
+   -khtml-user-select: none;
+   -webkit-user-select: none;
+   -ms-user-select: none;
+   user-select: none;
+}
+
+[contenteditable=true] {
+    cursor: pointer !important;
+}
+
+[contenteditable=true]:focus {
+    border: 2px solid #CCC;
+    cursor: text !important;
+}
+
+[contenteditable=true]:hover {
+    border-color: #999;
+    -webkit-transition: all 1s ease-in-out;
+    -moz-transition: all 1s ease-in-out;
+    -o-transition: all 1s ease-in-out;
+    -ms-transition: all 1s ease-in-out;
+    transition: all 1s ease-in-out;
+}
+
+.editable {
+	border: 2px dashed #EAF3FB;
+	border-radius: 4px;
+    cursor: default;
+}
+
+.editable, .editable * {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -o-user-select: text;
+    user-select: text;
+}
+
+.editable-control, .editable-control:focus, .editable-control:active,
+.editable-component, .editable-component:focus, .editable-component:active {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    -moz-user-focus: ignore;
+    cursor: pointer !important;
+}
+
+.editable-allow-select {
+   -moz-user-select: all !important;
+    -khtml-user-select: all !important;
+    -webkit-user-select: all !important;
+    user-select: all !important;
+    cursor: default !important;
+}
+
+.editable-button[data-active=true] {
+    background: red;
+}
+
+.drag {
+    -webkit-touch-callout: none;
+    -webkit-user-drag: element;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -khtml-user-drag: element;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    cursor: move;
+}
