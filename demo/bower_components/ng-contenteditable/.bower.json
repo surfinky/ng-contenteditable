@@ -1,0 +1,42 @@
+{
+  "name": "ng-contenteditable",
+  "main": [
+    "ng-contenteditable.js",
+    "ng-contenteditable.css"
+  ],
+  "version": "0.9.11",
+  "homepage": "https://github.com/cathalsurfs/ng-contenteditable",
+  "authors": [
+    "github.com/cathalsurfs",
+    "Cathal McCarthy"
+  ],
+  "description": "Angular directive for HTML5 contenteditable including drag, drop and support for nested directives!",
+  "keywords": [
+    "angular",
+    "contenteditable",
+    "wysiwyg",
+    "directive",
+    "drag",
+    "drop"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "test",
+    "demo",
+    ".DS_Store",
+    "index.html"
+  ],
+  "_release": "0.9.11",
+  "_resolution": {
+    "type": "version",
+    "tag": "v0.9.11",
+    "commit": "645d504af09c9d5ee9e6060aff0b33db1bdea57c"
+  },
+  "_source": "https://github.com/cathalsurfs/ng-contenteditable.git",
+  "_target": "^0.9.10",
+  "_originalSource": "ngcontenteditable"
+}
