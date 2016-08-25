@@ -1,8 +1,5 @@
 ![ngContentEditable](https://raw.githubusercontent.com/cathalsurfs/ng-contenteditable/master/demo/img/logo.png)
 
-=====================
-##ngContentEditable##
-
 ###Native contenteditable directive for AngularJS###
 
 A handy set of features, designed primarily to enable arbitrary editing of specific content areas of a web page, on the fly!
@@ -25,7 +22,15 @@ Tested working with latest versions of Chrome.
 
 Results with other browsers may vary and remain untested.
 
-#Directives#
+##Installation##
+
+Your bog standard bower install...
+
+__bower install ngcontenteditable__
+
+
+
+#Usage#
 
 ##editable##
 
