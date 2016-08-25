@@ -1,7 +1,4 @@
 /*
- * ngContentEditable 0.1.9 - 2016
- *
- * Fancy contenteditable features for AngularJS.
  *
  * https://github.com/cathalsurfs/ng-contenteditable
  *
@@ -11,8 +8,8 @@ var ngContentEditable = angular.module('ngContentEditable', []);
 
 ngContentEditable.service('editable.configService', function () {
     return {
-        VERSION: '0.9.9',
-        DRAG_MOVE_CLASS: 'editable-dropped',
+        VERSION: '0.9.10',
+        DEBUG_MODE: false, // NOTE: Set false for production.
         DRAG_COMPONENT_CLASS: 'editable-component', // NOTE: This class name must be assigned to any directives working within editable regions.
         DISABLE_RANGE_OVER_EDITABLE_COMPONENT: false, // TODO: Set true for production.
         SCOPE_UPDATE_TIMEOUT: 10,
@@ -31,26 +28,20 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
         scope: true, // Create new scope for each instance.
         restrict: 'C', // Only initialize on class names.
         require: '?ngModel',
-        controller: function($scope, $element) {
-            $scope.$ngContentEditable = $scope.$ngContentEditable || {  // Decorate directives (editable-component) within editable region with custom property.
-                isInEditableContainer: function () {
-                    // TODO
-                    return true;
-                },
-                allowSelection: function () {
-                    $element.attr("contenteditable", true).addClass('editable-allow-select'); // Enables image resizing in Mozilla (note may not always want contenteditable true behavior on this element).
-                    return $element;
-                }
-            }
+        controller: function ($scope, $element) {
+            $scope.$isNgContentEditable = true; // Provide to child scopes for use in custom directives.
         },
         link: function (scope, element, attrs, ngModel) {
 
-            if (!ngModel) return; // Do not initialize if data model not provided.
+            if (!ngModel) {  // Do not initialize if data model not provided.
+                throw "Model data is required.";
+                return;
+            }
 
             element.attr('contenteditable', 'true');
 
             ngModel.$render = function () { // Update editable content in view.
-                element.html(ngModel.$viewValue || element.html());
+                element.html(ngModel.$viewValue || element.html()); // Get model view value or default to element template.
                 $compile(element.contents())(scope);
             };
 
@@ -59,32 +50,42 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                 ngModel.$setViewValue(html);
             };
 
-            var _updateScope = function (opts) {
-                var opts = opts || {},
-                    wait = opts.wait || false,
-                    node = opts.compile,
-                    updateFn = function () {
-                        scope.$apply(_getViewContent);
-                    };
+            var _stripNodes = function (selector) {
+                var nodes = element[0].querySelectorAll(selector);
+                for (var i=0; i<nodes.length; i++) { // Unfortunate yet robust way to iterate over NodeList non-array.
+                    console.log('remove --->', nodes[i]);
+                    angular.element(nodes[i]).remove();
+                }
+            };
 
-                if (wait) {
+            var _updateScope = function (opts) { // Magic.
+                var opts = opts || {
+                    compile: false,
+                    wait: false
+                };
+
+                _stripNodes('meta');
+                _stripNodes('style');
+                _stripNodes('script');
+                _stripNodes('span:empty');
+
+                var updateFn = function () {
+                    if (scope.$root.$$phase === null) scope.$apply(_getViewContent); // Only call $apply when $digest cycle is completed.
+                    if (opts.compile) $compile(element.contents())(scope);
+                };
+
+                if (opts.wait) {
                     setTimeout(function () {
                         updateFn();
-                        if (node) $compile(node)(scope);
                     }, config.SCOPE_UPDATE_TIMEOUT || 100);
                 } else {
                     updateFn();
-                    if (node) $compile(node)(scope);
                 }
-
-                utils.isDirty(true);
-
             };
 
             var _insertNode = function (node, event) {
-                utils.isDirty(true);
-                range.captureRange(event);
-                node.addClass(config.DRAG_MOVE_CLASS);
+                var caret = range.captureRange(event);
+                range.setCachedRange(caret);
                 range.insertNode(node);
                 return node;
             };
@@ -111,18 +112,13 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
 
                 data = _formatText(htmlData) || textData || uriData;
 
-                if (!htmlData && uriData && textData && uriData === textData) { // NOTE: If, then assume this is a link! See https://developer.mozilla.org/en-US/docs/Web/Guide/HTML/Recommended_Drag_Types
-
+                if (utils.isValidURL(textData)) {
                     var handler = drag.getDropHandlerObject('text/uri-list');
                     if (!handler) return callback({ error: config.ERRORS.HANDLER_NOT_DEFINED, data: 'text/uri-list', types: types });
                     var node = _insertNode(handler.node, event); // Insert node prior to data upload.
-
-
                     drag.triggerFormatHandler(handler, data); // NOTE: Invoke custom handler (normally defined in your directive).
-                    if (typeof (callback) === 'function') callback({ error: false, data: filesData, types: types });
-
-                    _updateScope({ compile: node });
-
+                    if (typeof (callback) === 'function') callback({ error: false, data: textData, types: types });
+                    _updateScope({ compile: true });
                     return false;
                 }
 
@@ -133,7 +129,7 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                     if (!handler) return callback({ error: config.ERRORS.HANDLER_NOT_DEFINED, data: file.type, types: types });
 
                     var node = _insertNode(handler.node, event); // Insert node prior to data upload.
-                    _updateScope({ compile: node });
+                    _updateScope({ compile: true });
 
                     if (handler) {
                         drag.processFile(file).then(function (data) {
@@ -142,91 +138,95 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
                             _updateScope();
                         });
                     }
-                    return false; // Prevent default browser behavior for files.
+                    return false;
                 }
 
-                var sel = window.getSelection(),
-                    r = (sel.rangeCount) ? sel.getRangeAt(0) : undefined,
-                    contents = (r) ? r.cloneContents() : data;
-
-                var node = _insertNode(angular.element(contents), event);
-
-                if (_dragging) {
-                    r.deleteContents();
-                    _dragging = false;
+                try { // When we have a drop event. // TODO: Refactor for 'paste' event handler.
+                    var caret = range.captureRange(event);
+                    console.log('caret', caret, range.getCachedRange());
+                    if (_dragEvent) range.deleteContents();
+                    range.setCachedRange(caret);
+                    range.insertNode( angular.element( data ) );
+                    range.clearSelection();
+                } catch (error) {
+                    console.error(error);
+                    return true;
                 }
 
-                sel.removeAllRanges();
-
-                _updateScope({ compile: node });
-
+                _updateScope({ compile: true });
+                _dragEvent = null;
                 return false;
 
             };
 
-            var _dragging = false;
+            var _dragEvent = null;
 
             ((element)
-                .bind('click', function (event) {
-                    _updateScope(); // TODO: Testing...
-                })
-                .bind('input change', function (event) {
+                .bind('click mouseup keyup focus input change', function (event) {
                     _updateScope();
-                    commands.updateStatus();
-                })
-                .bind('mouseup keyup', function (event) {
                     commands.updateStatus();
                 })
                 .bind('mousedown', function (event) {
-                    element.attr('contenteditable', 'true');
+                    element.attr('contenteditable', 'true'); // Force editable.
                 })
                 .bind('blur', function (event) {
-                    _updateScope();
-                    commands.updateStatus();
-                    var sel = document.getSelection();
-                    sel.removeAllRanges();
-                })
-                .bind('focus', function (event) {
-                    _updateScope();
-                    commands.updateStatus();
+                    _updateFn({ updateScope: true, updateStatus: true });
+                    range.clearSelection();
                 })
                 .bind('dragstart', function (event) {
-                    if (config.DISABLE_RANGE_OVER_EDITABLE_COMPONENT && range.getEditableComponents()) { // Prevent user from dragging range containing editable-component directives!
+                    /*if (config.DISABLE_RANGE_OVER_EDITABLE_COMPONENT && range.getEditableComponents()) { // Prevent user from dragging range containing editable-component directives!
                         event.preventDefault();
                         return false;
-                    }
-                    _dragging = true;
+                    }*/
+                    var _range = range.captureRange(event);
+                    range.setCachedRange(_range);
+                    _dragEvent = event;
+                    //if (event.target.nodeType === 1) drag.setElement(event.target); // TODO: Required?
+                    drag.setElement(event.target);
                 })
-                .bind('dragend', function (event) {
-                    // TODO
+                .bind('dragover', function (event) {
+                    element[0].focus();
+                    return true;
                 })
                 .bind('drop', function (event) {
+
+                    var component = drag.getElement();
+
+                    if (component && component.nodeType === 3) {
+                        _updateScope({ compile: true, wait: 1000 });
+                        drag.setElement(null);
+                        return true;
+                    }
+
                     event.preventDefault();
 
-                    var component = drag.getDragElement();
+                    var data = drag.getData(event, { type: 'text/editable-component' }) || drag.getData(event, { type: 'text/html' });
 
-                    if (component) {
-                        event.preventDefault();
-                        var el = component[0],
-                            r = range.captureRange(event),
-                            placeholder = document.createElement('span');
-                        el.parentNode.removeChild(el);
-                        range.insertNode(placeholder);
-                        placeholder.appendChild(el);
-                        _updateScope();
+                    if (component) { // TODO: See https://developer.mozilla.org/en/docs/Web/API/Node/nodeType
+                        var placeholder = angular.element('<span />'); // TODO: We need to wrap the component for scope?
+                        var caret = range.captureRange(event); // Get the caret range from the drop event.
+                        range.setCachedRange(caret); // Save the range.
+                        range.insertNode(placeholder[0]); // Insert the node at the saved range position.
+                        placeholder.append( angular.element(component) ); // Coerse angular element and append to placeholder.
+                        // TODO: drag.removeElement(); // Remove the original element cleanly.
+                        drag.setElement(null);
+                        _updateScope({ compile: true }); // A sprinkling of fairy dust.
                         return false;
                     }
 
-                    return _processData(event, function (data) { // Callback after drag data is processed (e.g. file upload).
-                        utils.triggerErrorHandler(data, scope);
+                    return _processData(event, function onProcessCompleted (result) {
+                        utils.triggerErrorHandler(result, scope);
                         return false;
                     });
                 })
                 .bind('paste', function (event) {
-                    return _processData(event, function (data) { // Callback after drag data is processed (e.g. file upload).
-                        utils.triggerErrorHandler(data, scope);
+                    /*return _processData(event, function onProcessCompleted (result) { // Callback after drag data is processed (e.g. file upload).
+                        utils.triggerErrorHandler(result, scope);
                         return false;
-                    });
+                    });*/
+                    console.log('PASTE', event)
+                    _updateScope({ compile: true, wait: 1000 }); // Wait a second...
+                    return true;
                 })
             );
 
@@ -236,70 +236,37 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
 
 }]);
 
-ngContentEditable.directive('editableComponent', ['editable.dragHelperService', 'editable.rangeHelperService', 'editable.configService', function (drag, range, config) {
-    return {
-        restrict: 'C',
-        link: function (scope, element, attrs) {
-            ((element)
-                .attr('contenteditable', false)
-                .bind('dragstart', function (event) {
-                    if (scope.$ngContentEditable) {
-                        drag.setDragElement(element);
-                        return true;
-                    }
-                    event.dataTransfer.setData('text/html', element[0].outerHTML);
-                    // TODO: event.dataTransfer.setData('text/editable-component', element[0].outerHTML);
-                    return true;
-                })
-            );
-        }
-    };
-}]);
-
-ngContentEditable.service('editable.utilityService', ['editable.configService', '$window', '$document', function (config, $window, $document) {
-
-    var _isDirty = false;
-
-    return {
-        isDirty: function (flag) {
-            if (flag === true || flag === false) _isDirty = flag;
-            if (_isDirty && !config.ALLOW_DIRTY_REFRESH) {
-                $window.onbeforeunload = $window.onunload = function (event) { return config.ALLOW_DIRTY_REFRESH_STRING; };
-            } else {
-                $window.onbeforeunload = $window.onunload = null;
-            }
-            return flag;
-        },
-        createUniqueId: function () { // GUID as per RFC-4122.
-            return 'XXXXXXXX-XXXX-4XXX-YXXX-XXXXXXXXXXXX'.replace(/[XY]/g, function (chr) {
-                var rnd = (Math.random()*16|0),
-                    out = (chr === 'X') ? rnd : rnd & 0x3|0x8;
-                return out.toString(16);
-            });
-        },
-        triggerErrorHandler: function (data, scope) {
-            if (data && data.error && console && console.log) console.log(data);
-            if (typeof (scope.$ngContentEditable && scope.$ngContentEditable.onError) === 'function') scope.$ngContentEditable.onError(data);
-        },
-        getConfig: function () {
-            return config;
-        }
-    };
-}]);
-
-ngContentEditable.service('editable.dragHelperService', ['$q', 'editable.utilityService', 'editable.configService', function ($q, utils, config) {
+ngContentEditable.service('editable.dragHelperService', ['editable.utilityService', 'editable.configService', '$q', '$document', function (utils, config, $q, $document) {
 
     var _registeredDropTypes = {},
         _dragElement = null;
 
+    $document.on('dragstart', function (event) {
+        console.log('document dragstart', event);
+    });
+
     return {
-        setDragElement: function (element) {
-            _dragElement = element;
+        getData: function (event, opts) {
+            var opts = opts || {
+                    type: 'text/html'
+                },
+                data = null;
+            if (event && event.dataTransfer) data = event.dataTransfer.getData(opts.type);
+            if (!data.length) return null;
+            return data;
         },
-        getDragElement: function (element, reset) {
-            var _returnElement = _dragElement;
-            if (reset !== false) _dragElement = null;
-            return _returnElement;
+        setElement: function (element) {
+            _dragElement = element;
+            return _dragElement;
+        },
+        getElement: function (reset) {
+            if (reset === true) _dragElement = null;
+            return _dragElement;
+        },
+        removeElement: function (element) {
+            var el = element || _dragElement;
+            angular.element(el).remove();
+            _dragElement = null;
         },
         processFile: function (file) {
             var deferred = $q.defer(),
@@ -336,7 +303,6 @@ ngContentEditable.service('editable.dragHelperService', ['$q', 'editable.utility
         triggerFormatHandler: function (handler, data) {
             if (handler && typeof (handler.format) === 'function') handler.format(data);
             if (!(handler && handler.node && handler.node.addClass)) throw new Error('triggerFormatHandler() A valid format handler node is required.');
-            handler.node.addClass(config.DRAG_MOVE_CLASS);
         },
         getDropHandlerObject: function (type) {
             try {
@@ -346,7 +312,7 @@ ngContentEditable.service('editable.dragHelperService', ['$q', 'editable.utility
                     format: handler.format
                 };
             } catch (error) {
-                console.warn(error);
+                console.error(error);
                 return;
             }
         }
@@ -354,37 +320,60 @@ ngContentEditable.service('editable.dragHelperService', ['$q', 'editable.utility
 
 }]);
 
-ngContentEditable.service('editable.rangeHelperService', ['editable.configService', function (config) {
+ngContentEditable.service('editable.rangeHelperService', ['editable.configService', '$document', function (config, $document) {
 
-    var _range = null;
+    var _cachedRange = null;
+
+    $document.on('selectionchange', function (event) { // Save current range to mitigate index size error using getRangeAt(0)
+        var sel = window.getSelection && window.getSelection();
+        if (sel && sel.rangeCount > 0) {
+            _cachedRange = sel.getRangeAt(0);
+        };
+    });
 
     return {
-        captureRange: function (event) {
-            if (document.caretRangeFromPoint && event.type != 'paste') {
-                _range = document.caretRangeFromPoint(event.clientX, event.clientY);
-            } else { // Mozilla.
-                _range = document.createRange();
-                _range.setStart(event.rangeParent, event.rangeOffset); // Set range starting point using the rangeParent and rangeOffset properties of the mouse event (Mozilla).
+        _captureRange: function (event) {
+            var range = null;
+            if (event.clientX && event.clientY && !event.rangeParent && !event.rangeOffset) { // Chrome (etc)
+                range = document.caretRangeFromPoint(event.clientX, event.clientY);
+            }  else { // Mozilla
+                range = document.createRange();
+                range.setStart(event.rangeParent, event.rangeOffset); // Set starting point using the rangeParent and rangeOffset properties of the mouse event (Mozilla).
             }
-            _range.collapse(false); // Collapse range to end of boundary point.
-            var sel = window.getSelection();
-            if (event.type === 'paste') _range = sel.getRangeAt(0);
-            sel.removeAllRanges();
-            sel.addRange(_range);
-            return _range;
+            return range;
+        },
+        captureRange: function (event) {
+            var range;
+            if (typeof document.caretPositionFromPoint != "undefined") { // Mozilla
+                var position = document.caretPositionFromPoint(event.clientX, event.clientY);
+                range = document.createRange();
+                range.setStart(position.offsetNode, position.offset);
+                // TODO: range.collapse(true);
+            } else if (typeof document.caretRangeFromPoint != "undefined") { // Chrome
+                range = document.caretRangeFromPoint(event.clientX, event.clientY);
+            } else if (typeof document.body.createTextRange != "undefined") { // MSIE
+                range = document.body.createTextRange();
+                range.moveToPoint(x, y);
+            }
+            return range;
+        },
+        addRange: function (range) {
+            var selection = this.getSelection();
+            selection.addRange(range);
+            return range;
         },
         insertNode: function (node) {
-            if (!_range || !node) return null;
+            if (!_cachedRange || !node) return null;
             if (typeof (node.attr) === 'function') {
-                _range.insertNode(node[0]);
+                _cachedRange.insertNode(node[0]);
             } else {
-                _range.insertNode(node);
+                _cachedRange.insertNode(node);
             }
-            _range.collapse(true);
-            return _range;
+            _cachedRange.collapse(true);
+            return _cachedRange;
         },
-        removeSelection: function () {
-            var sel = window.getSelection ? window.getSelection() : document.selection;
+        clearSelection: function () {
+            var sel = this.getSelection();
             if (sel) {
                 if (sel.removeAllRanges) {
                     sel.removeAllRanges();
@@ -394,24 +383,26 @@ ngContentEditable.service('editable.rangeHelperService', ['editable.configServic
             }
         },
         getSelection: function () {
-           return window.getSelection ? window.getSelection() : document.selection;
+            return window.getSelection ? window.getSelection() : document.selection;
         },
-        setSelection: function (range) {
-            var sel = this.getSelection();
-            sel.addRange(range);
-        },
-        getSelectionRange: function () {
-            var sel;
-            if (window.getSelection) {
-                sel = window.getSelection();
-                if (sel.rangeCount) return sel.getRangeAt(0);
-            } else if (document.selection) { // IE
-                return document.selection.createRange();
+        cloneContents: function () {
+            if (_cachedRange && _cachedRange.cloneContents) {
+                var contents = _cachedRange.cloneContents();
+                if (contents.length) return contents;
             }
             return null;
         },
+        deleteContents: function () {
+            if (_cachedRange) _cachedRange.deleteContents();
+        },
+        getCachedRange: function () {
+            return _cachedRange; // NOTE: See "selectionchange" event.
+        },
+        setCachedRange: function (range) {
+            if (range) return _cachedRange = range;
+        },
         getSelectionNode: function () {
-           var node = document.getSelection().anchorNode;
+           var node = this.getSelection().anchorNode;
            return ((node && node.nodeType == 3) ? node.parentNode : node);
         },
         getEditableComponents: function () {
@@ -422,6 +413,46 @@ ngContentEditable.service('editable.rangeHelperService', ['editable.configServic
         }
     };
 
+}]);
+
+ngContentEditable.service('editable.utilityService', ['editable.configService', '$window', '$document', function (config, $window, $document) {
+
+    var _isDirty = false;
+
+    return {
+        isValidURL: function (url) {
+            try {
+                var obj = new window.URL(url);
+                if (obj && obj.href) return obj.href;
+            } catch (error) {
+                console.error(error);
+            }
+            return null;
+        },
+        isDirty: function (flag) {
+            if (flag === true || flag === false) _isDirty = flag;
+            if (_isDirty && !config.ALLOW_DIRTY_REFRESH) {
+                $window.onbeforeunload = $window.onunload = function (event) { return config.ALLOW_DIRTY_REFRESH_STRING; };
+            } else {
+                $window.onbeforeunload = $window.onunload = null;
+            }
+            return flag;
+        },
+        createUniqueId: function () { // GUID as per RFC-4122.
+            return 'XXXXXXXX-XXXX-4XXX-YXXX-XXXXXXXXXXXX'.replace(/[XY]/g, function (chr) {
+                var rnd = (Math.random()*16|0),
+                    out = (chr === 'X') ? rnd : rnd & 0x3|0x8;
+                return out.toString(16);
+            });
+        },
+        triggerErrorHandler: function (data, scope) {
+            if (data && data.error && console && console.log) console.log(data);
+            if (typeof (scope.$ngContentEditableError) === 'function') scope.$ngContentEditableError(data);
+        },
+        getConfig: function () {
+            return config;
+        }
+    };
 }]);
 
 ngContentEditable.factory('editable.commandHelperService', ['editable.utilityService', function (utils) {
@@ -458,6 +489,25 @@ ngContentEditable.factory('editable.commandHelperService', ['editable.utilitySer
         }
     };
 
+}]);
+
+ngContentEditable.directive('editableComponent', ['editable.dragHelperService', 'editable.rangeHelperService', 'editable.configService', function (drag, range, config) {
+    return {
+        restrict: 'C',
+        link: function (scope, element, attrs) {
+            ((element)
+                .attr('contenteditable', false)
+                .bind('dragstart', function (event) {
+                    if (scope.$isNgContentEditable) {
+                        drag.setElement(element);
+                        return true;
+                    }
+                    event.dataTransfer.setData('text/editable-component', element[0].outerHTML);
+                    return true;
+                })
+            );
+        }
+    };
 }]);
 
 ngContentEditable.directive('editableControl', ['editable.rangeHelperService', 'editable.commandHelperService', function (range, commands) {

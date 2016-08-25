@@ -1,10 +1,10 @@
-* {
+/** {
    -moz-user-select: none;
    -khtml-user-select: none;
    -webkit-user-select: none;
    -ms-user-select: none;
    user-select: none;
-}
+}*/
 
 [contenteditable=true] {
     cursor: pointer !important;
@@ -17,11 +17,11 @@
 
 [contenteditable=true]:hover {
     border-color: #999;
+    transition: all 1s ease-in-out;
     -webkit-transition: all 1s ease-in-out;
     -moz-transition: all 1s ease-in-out;
     -o-transition: all 1s ease-in-out;
     -ms-transition: all 1s ease-in-out;
-    transition: all 1s ease-in-out;
 }
 
 .editable {
@@ -43,15 +43,15 @@
     -moz-user-select: none;
     -khtml-user-select: none;
     -webkit-user-select: none;
-    user-select: none;
     -khtml-user-drag: element;
     -webkit-user-drag: element;
     -moz-user-focus: ignore;
+    user-select: none;
     cursor: pointer !important;
 }
 
 .editable-allow-select {
-   -moz-user-select: all !important;
+    -moz-user-select: all !important;
     -khtml-user-select: all !important;
     -webkit-user-select: all !important;
     user-select: all !important;
