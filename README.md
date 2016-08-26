@@ -74,7 +74,7 @@ Main thing here is the following method:
 
 Data transferred by __drag__, __drop__ or __paste__ operations is handled (and optionally transformed) based on registered MIME types. If no handler is registered, any drop event will be cancelled or any paste event will provide default behavior (testing required).
 
-The __registerDropHandler__ method provides mechanism to register a drop handler for editable elements. In the demo provided, this method is called from the constructor function of directives which apply to specific HTML tags.
+The __registerDropHandler__ method provides a mechanism to register a drop handler for editable elements. In the demo provided, this method is called from the constructor function of directives which apply to specific HTML tags.
 
 It takes the following options object as its only argument:
 
