@@ -6,7 +6,7 @@ A handy set of features, designed primarily to enable arbitrary editing of speci
 
 [Live Demo](http://inchsurf.com/ng-contenteditable/)
 
-Note this demo requires jQuery and Bootstrap 3 (because I just wanted to put together a quick and dirty).
+Note this demo requires jQuery and Bootstrap 3 (because I just wanted to put together a quick and dirty demo).
 
 [Documentation](https://github.com/cathalsurfs/ng-contenteditable/wiki) (TODO)
 
@@ -16,7 +16,7 @@ Note this demo requires jQuery and Bootstrap 3 (because I just wanted to put tog
 
 ##Requirements##
 
-A browser that supports contenteditable and HTML5 drag and drop specification is required.
+A browser that supports the contenteditable attribute and ideally, also supports HTML5 drag and drop specification is required.
 
 Tested working with latest versions of Chrome.
 
@@ -76,7 +76,7 @@ Data transferred by __drag__, __drop__ or __paste__ operations is handled (and o
 
 The __registerDropHandler__ method provides mechanism to register a drop handler for editable elements. In the demo provided, this method is called from the constructor function of directives which apply to specific HTML tags.
 
-It the following options object as its only argument:
+It takes the following options object as its only argument:
 
 	{
 		types: [], 				// Array of strings, for each mime type you want to accept (e.g. ['image/jpeg', 'image/png', 'image/gif'])
