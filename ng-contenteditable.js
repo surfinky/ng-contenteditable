@@ -96,7 +96,7 @@ ngContentEditable.directive('editable', ['$compile', 'editable.dragHelperService
 
             var _processData = function (event, callback) {
 
-                var data = event.dataTransfer || event.clipboardData || null;
+                var data = event.dataTransfer || event.originalEvent.dataTransfer || event.clipboardData || null;
 
                 if (!data) {
                     if (typeof (callback) === 'function') callback({ error: true, data: null, type: null });
@@ -247,7 +247,11 @@ ngContentEditable.service('editable.dragHelperService', ['editable.utilityServic
                     type: 'text/html'
                 },
                 data = null;
+	if (event.dataTransfer) {
             if (event && event.dataTransfer) data = event.dataTransfer.getData(opts.type);
+	}else if (event.originalEvent.dataTransfer) {
+                if (event && event.originalEvent.dataTransfer) data = event.originalEvent.dataTransfer.getData(opts.type);
+            }
             if (!data.length) return null;
             return data;
         },
@@ -498,7 +502,11 @@ ngContentEditable.directive('editableComponent', ['editable.dragHelperService', 
                         drag.setElement(element);
                         return true;
                     }
+		    if (event.dataTransfer) {
                     event.dataTransfer.setData('text/editable-component', element[0].outerHTML);
+			    } else if (event.originalEvent.dataTransfer) {
+                        event.originalEvent.dataTransfer.setData('text/editable-component', element[0].outerHTML);
+                    }
                     return true;
                 })
             );
