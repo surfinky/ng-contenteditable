@@ -98,6 +98,6 @@ __editable.commandHelperService__ (required by editable-control directive)
 
 ## Tests
 
-Sorry, coverage is a bit sparse at the moment. For now, I've made available some basic sanity testing and testing around validation of two-way data binding on editable regions and some range / selection interaction with editable regions, for good measure.
+Sorry, coverage is a bit sparse at the moment. For now, I've made available some basic sanity testing, validation of two-way data binding on editable regions and some range / selection interaction with editable regions, for good measure.
 
 [Tests](https://github.com/cathalsurfs/ng-contenteditable/tree/master/test)
