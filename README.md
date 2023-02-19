@@ -46,7 +46,7 @@ Example:
 
 	<div class="editable" data-ng-model="your.data.model">Some default static content...</div>
 
-If your model data is not available, ngContentEditable will default to whatever static content you have contained within your element. This is handy (e.g. for initial design and layout), when for example you are mocking up a web page, or you want to publish with initial static content which the user can later modify in your implementation. As such, subsequent changes will update to your model dynamically.
+If your model data is not available, ngContentEditable will default to whatever static content already exists within your element. This is handy (e.g. for initial design and layout), when for example you are mocking up a web page, or you want to publish with initial static content which the user can later modify in your implementation. As such, subsequent changes will update to your model dynamically.
 
 #### Scope
 
