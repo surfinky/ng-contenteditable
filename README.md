@@ -2,7 +2,7 @@
 
 ## Native contenteditable directive for AngularJS
 
-The original and rather nifty AngularJS directive to enable content editing of specific elements on a live a web page, inline and on the fly! Complete with two way binding, dynamic drag and drop and a few helpers for easy roll-your-own GUI implementation.
+The original and rather nifty AngularJS directive to enable content editing of specific elements on a live a web page, inline and on the fly! Complete with two way binding, dynamic drag and drop and additional helpers for easy roll-your-own GUI implementation.
 
 [Live Demo](http://inchsurf.com/ng-contenteditable/)
 
