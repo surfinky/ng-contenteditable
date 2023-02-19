@@ -36,11 +36,11 @@ __bower install ngcontenteditable__
 
 ## editable
 
-This directive can be declared on any element within the DOM. However it is intended to constrained in its use to block style elements.
+This directive can be declared on any element within the DOM. In terms of practicality, its use is intended for block style elements but you are not constained to other style elements (e.g. flexible) by any means.
 
 Drag and drop operations...
 
-Directive declaration applied by class attribute. Simply add the "editable" class name to any element to enable editable functionality. Native drag and drop functionality is also provided to "editable" regions (including reads from local file system). Two-way data binding is also provided on "editable" elements.
+Directive declaration is assigned by class attribute. Simply add the "editable" class name to any element to enable editable functionality. Native drag and drop functionality is also provided to "editable" regions (including reads from local file system). Two-way data binding is also provided on "editable" elements.
 
 Example:
 
