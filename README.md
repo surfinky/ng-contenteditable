@@ -8,7 +8,9 @@ The original and rather nifty set AngularJS components to enable editing of spec
 
 Note the demo itself requires jQuery and Bootstrap 3 (for quick demo purposes).
 
-[Documentation](https://github.com/cathalsurfs/ng-contenteditable/wiki) (TODO)
+[Documentation](https://github.com/cathalsurfs/ng-contenteditable/wiki)
+
+The code is the documentation! It is worth reviewing the demo (code) also, as it is commented heavily and demonstrates a good working example of how you can implement and use this directive in a web page or application.
 
 [Reference](https://github.com/cathalsurfs/ng-contenteditable/blob/master/demo/js/app.js) (see code comments)
 
