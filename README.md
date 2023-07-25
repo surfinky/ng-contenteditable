@@ -2,15 +2,15 @@
 
 ## Native contenteditable directive for AngularJS
 
-The original and rather nifty AngularJS directive to enable content editing of specific elements on live web page (WYSIWYG), inline and on the fly! Complete with two way binding, dynamic drag and drop and additional helpers for you to easily roll-your-own implementation and UI.
+The original and rather nifty AngularJS directive to enable live content editing of specific elements within a web page, inline and on the fly! Complete with two way binding, dynamic drag and drop functionality and additional helpers for you to easily roll-your-own UI.
 
-[Live Demo](http://inchsurf.com/ng-contenteditable/)
+[Live Demo](http://#/ng-contenteditable/)
 
-Note the demo itself requires jQuery and Bootstrap 3 (for quick demo purposes).
+Note the demo provides an example using jQuery and Bootstrap 3.
 
 [Documentation](https://github.com/cathalsurfs/ng-contenteditable/wiki)
 
-The code is the documentation! It is worth reviewing the demo (code) also, as it is commented heavily and demonstrates a good working example of how you can implement and use this directive in a web page or application.
+The code is the documentation! It is worth reviewing the demo code itself. It is well commented and demonstrates a good working example of how you can implement and use this directive within a web page or application of your choice.
 
 [Reference](https://github.com/cathalsurfs/ng-contenteditable/blob/master/demo/js/app.js) (see code comments)
 
